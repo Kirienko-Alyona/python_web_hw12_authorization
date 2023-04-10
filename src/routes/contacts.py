@@ -13,8 +13,8 @@ router = APIRouter(prefix='/contacts', tags=['contacts'])
 
 
 @router.get("/", response_model=List[ContactResponse])
-async def get_contacts_search(name: str = None, surname: str = None, email: str = None, phone: str = None, limit: int = Query(10, le=100), offset: int = 0, current_user: User = Depends(auth_service.get_current_user), db: Session = Depends(get_db)):
-    contacts = await repository_contacts.get_contacts_search({'name': name, 'surname': surname, 'email': email, 'phone': phone}, limit, offset, current_user, db)
+async def get_contacts_search(name: str = None, surname: str = None, email: str = None, phone: str = None, limit: int = Query(5, le=100), offset: int = 0, current_user: User = Depends(auth_service.get_current_user), db: Session = Depends(get_db)):
+    contacts = await repository_contacts.get_contacts_search({'name': name, 'surname': surname, 'email': email, 'phone': phone}, current_user, limit, offset, db)
     if contacts is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Not Found")

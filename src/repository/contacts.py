@@ -44,18 +44,18 @@ from src.database.models import Contact, User
 async def get_contacts_search(dict_values: dict, user: User, limit: int, offset: int, db: Session) -> Optional[List[Contact]]:
     # if not input params - returned all list contacts
     # else - search by parametrs: name, surname, email, phone - returned list contacts
-    contacts = db.query(Contact).filter(Contact.user_id == user.id).first()
+    contacts = db.query(Contact)
     for key, value in dict_values.items():
         if value != None:
             attr = getattr(Contact, key)
-            contacts = contacts.filter(attr.icontains(value))
+            contacts = contacts.filter(attr.icontains(value), Contact.user_id == user.id)
     contacts = contacts.limit(limit).offset(offset).all()
     return contacts
 
 
 async def get_contact_id(contact_id: int, user: User, db: Session) -> Contact:
     # search one contact by contact id - return only one contact
-    contact = db.query(Contact).filter_by(id=contact_id, user_id = id).first()
+    contact = db.query(Contact).filter_by(id=contact_id, user_id = user.id).first()
     return contact
 
 
@@ -70,7 +70,7 @@ async def create_contact(body: ContactModel, user: User, db: Session) -> Contact
 
 async def update_contact(body: ContactUpdate, contact_id: int, user: User, db: Session) -> Contact | None:
     # update contact
-    contact = db.query(Contact).filter_by(id=contact_id, user_id = id).first()
+    contact = db.query(Contact).filter_by(id=contact_id, user_id = user.id).first()
     if contact:
         contact.name = body.name,
         contact.surname = body.surname,
@@ -83,7 +83,7 @@ async def update_contact(body: ContactUpdate, contact_id: int, user: User, db: S
 
 async def remove_contact(contact_id: int, user: User, db: Session) -> Contact | None:
     # delete contact
-    contact = db.query(Contact).filter_by(id=contact_id, user_id = id).first()
+    contact = db.query(Contact).filter_by(id=contact_id, user_id = user.id).first()
     if contact:
         db.delete(contact)
         db.commit()
@@ -92,12 +92,10 @@ async def remove_contact(contact_id: int, user: User, db: Session) -> Contact | 
 
 async def get_birthday_list(quontity_days: int, user: User, db: Session) -> Optional[List[Contact]] | None:
     # function returns a list of contacts whose birthday will be in the near future "count_days"
-    contacts = db.query(Contact).filter(user_id = id)
+    contacts = db.query(Contact).filter_by(user_id = user.id)
     if quontity_days:
         today = date.today()
         start_range = today - timedelta(days=365*70)
         end_range = today + timedelta(days=quontity_days+1)
         contacts_birthday = contacts.filter(Contact.born_date.between(start_range, end_range)).all()
-        print(type(contacts_birthday))
-        print(contacts_birthday)
     return contacts_birthday
