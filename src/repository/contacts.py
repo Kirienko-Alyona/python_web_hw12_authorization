@@ -44,7 +44,7 @@ from src.database.models import Contact, User
 async def get_contacts_search(dict_values: dict, user: User, limit: int, offset: int, db: Session) -> Optional[List[Contact]]:
     # if not input params - returned all list contacts
     # else - search by parametrs: name, surname, email, phone - returned list contacts
-    contacts = db.query(Contact).filter(Contact.user_id == user.id)
+    contacts = db.query(Contact).filter(Contact.user_id == user.id).first()
     for key, value in dict_values.items():
         if value != None:
             attr = getattr(Contact, key)
