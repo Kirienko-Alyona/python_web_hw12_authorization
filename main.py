@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import text
 
 from src.database.connect import get_db
-from src.routes import contacts
+from src.routes import contacts, auth
 
 app = FastAPI()
 favicon_path = 'favicon.ico'
@@ -48,4 +48,5 @@ def healthchecker(db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail="Error connecting to the database")
 
 
+app.include_router(auth.router, prefix='/api')
 app.include_router(contacts.router, prefix='/api')
